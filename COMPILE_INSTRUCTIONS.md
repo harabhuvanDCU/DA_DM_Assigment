@@ -1,124 +1,113 @@
 
 ---
 
-# How to Compile and Run the Notebook
+HOW TO COMPILE AND RUN THE NOTEBOOK
 
-This guide provides step-by-step instructions to compile and execute the `DA_DM_FINAL_SUBMIT.ipynb` file from this repository.
+This guide explains how to execute the `DA_DM_FINAL_SUBMIT.ipynb` notebook in Google Colab or any local Jupyter environment.
 
 ---
 
-## 1. Requirements
+1. REQUIREMENTS
 
-Before running the notebook, make sure the following libraries are installed:
+Make sure the following Python libraries are installed:
 
-- `transformers`
-- `datasets`
-- `pandas`
-- `numpy`
-- `scikit-learn`
-- `torch`
-- `textblob`
-- `wandb`
-- `joblib`
+- transformers
+- datasets
+- pandas
+- numpy
+- scikit-learn
+- torch
+- textblob
+- wandb
+- joblib
 
-Install all using:
+Install them using the command:
 
-```bash
-pip install transformers datasets pandas numpy scikit-learn torch textblob wandb joblib
-```
-
-Or use:
-
-```bash
 pip install -r requirements.txt
-```
+
+Or install manually using:
+
+pip install transformers datasets pandas numpy scikit-learn torch textblob wandb joblib
 
 ---
 
-## 2. Recommended Platform
+2. RECOMMENDED PLATFORM
 
-Use [Google Colab](https://colab.research.google.com/) to execute the notebook:
+Google Colab is recommended due to its GPU support.
 
-- GPU: Recommended (T4 or similar)
-- Runtime: Python 3.10+ and GPU enabled
+Recommended setup:
+
+- Runtime Type: Python 3.x
+- Hardware Accelerator: GPU (T4 or equivalent)
 
 ---
 
-## 3. Directory Structure (Expected)
+3. REQUIRED DIRECTORY STRUCTURE
 
-The notebook assumes the following folder paths exist in your Google Drive:
+Ensure the following files are present in your Google Drive:
 
-```
 /content/drive/MyDrive/new2/
-├── final_balanced_dataset2.csv     # Preprocessed dataset
-├── DA_DM_model/                    # Final saved model (used for inference)
-└── further_finetuned_model/        # Output folder for training checkpoints
-```
+- final_balanced_dataset2.csv  (Cleaned and balanced dataset)
+- DA_DM_model/                 (Folder with saved fine-tuned DistilBERT model)
+- further_finetuned_model/     (Used during training for checkpoints)
 
-You should mount your Google Drive using:
+You must mount your Google Drive with:
 
-```python
-from google.colab import drive
+from google.colab import drive  
 drive.mount('/content/drive')
-```
 
 ---
 
-## 4. Running the Notebook
+4. RUNNING THE NOTEBOOK
 
-The notebook has the following key sections:
+The notebook follows a structured pipeline:
 
-### 🔹 Data Cleaning & Preprocessing
+A. Data Preprocessing  
+- Loads the dataset  
+- Removes duplicates and nulls  
+- Balances six thematic classes  
 
-- Loads `final_balanced_dataset2.csv`
-- Drops duplicates and missing values
-- Balances the dataset into 6 themes
+B. Feature Engineering  
+- Computes sentiment using TextBlob  
+- Normalizes word count  
+- Creates engagement score using a weighted formula  
 
-### 🔹 Feature Engineering
+C. Model Setup  
+- Loads DistilBERT (distilbert-base-uncased)  
+- Converts it to regression (num_labels=1)  
+- Applies early stopping and R²-based evaluation  
 
-- Generates `sentiment_numeric` using `TextBlob`
-- Normalizes text length into `text_length_norm`
-- Combines features into `estimated_engagement_score`
+D. Training  
+- Trains the model on 80% data  
+- Validates on 20%  
+- Saves the best model  
 
-### 🔹 Model Setup and Training
+E. Evaluation  
+- Calculates RMSE and R²  
+- Compares with baseline linear regression  
+- Plots performance results  
 
-- Loads `distilbert-base-uncased` from HuggingFace
-- Modifies it for regression (`num_labels=1`)
-- Fine-tunes on 80/20 train/test split
-- Uses early stopping, R² as metric
-
-### 🔹 Evaluation
-
-- Evaluates using RMSE and R²
-- Compares against a linear regression baseline
-- Visualizes results and insights
-
-### 🔹 Inference Example
-
-- Loads saved model from `DA_DM_model`
-- Predicts engagement for sample posts
-- Returns float engagement scores (positive, neutral, negative)
+F. Inference  
+- Loads trained model  
+- Predicts engagement for custom text examples  
 
 ---
 
-## 5. Notes
+5. SAMPLE INFERENCE WORKFLOW
 
-- Make sure to restart the runtime and re-run all cells if interrupted.
-- Use GPU for faster training.
-- To avoid widget metadata issues when uploading to GitHub, strip metadata using:
+You can test the trained model using inference_examples in same noteboook
 
-```bash
-!jupyter nbconvert --ClearMetadataPreprocessor.enabled=True --clear-output --inplace DA_DM_FINAL_SUBMIT.ipynb
-```
+- Loading the saved model  
+- Tokenizing new text  
+- Outputting engagement scores  
 
 ---
 
-## 6. Inference Tips
+7. TIPS
 
-You can use the `inference_examples.ipynb` file to:
-
-- Load the trained model
-- Enter your own post
-- Get an estimated engagement score instantly
+- Always restart and run all cells in order after a runtime disconnect.
+- Ensure all file paths match the expected structure.
+- Use GPU for faster training, especially for transformers.
 
 ---
+
