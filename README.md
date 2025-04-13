@@ -1,30 +1,43 @@
+---
+
 # Predicting Social Media Engagement Using DistilBERT
 
-This project presents an end-to-end Natural Language Processing (NLP) pipeline to predict the engagement score of social media posts using a fine-tuned DistilBERT model. It uses engineered features like sentiment polarity and text length to train a regression model capable of estimating the post's potential impact.
+This project presents an end-to-end Natural Language Processing (NLP) pipeline to predict the engagement score of social media posts using a fine-tuned DistilBERT model. It combines semantic information with engineered features like sentiment polarity and text length to train a regression model capable of estimating user interaction.
 
 ---
 
 ## Project Objective
 
-- **What**: Build a model that predicts how engaging a post will be using only the text.
-- **Why**: Engagement metrics guide marketing, trend detection, and content visibility. Most current models ignore semantic content.
-- **How**: Fine-tune a lightweight transformer (DistilBERT) using engineered sentiment and verbosity features.
+- **What**: Build a model that predicts how engaging a post will be using only its text.
+- **Why**: Engagement metrics are essential for marketing, trend detection, and platform visibility. Most models overlook deep semantic cues in language.
+- **How**: Fine-tune a lightweight transformer (DistilBERT) using engineered sentiment and verbosity features to estimate a continuous engagement score.
 
 ---
 
 ## Repository Structure
 
 ```
-.
+DA_DM_Assignment/
 ├── data/
-│   ├── raw/                    # Original datasets from HuggingFace
-│   └── cleaned/                # Balanced and filtered dataset
+│   ├── raw/
+│   │   └── combined_social_media_dataset.csv       # Merged original data
+│   └── cleaned/
+│       └── final_balanced_dataset2.csv             # Cleaned and balanced training data
+│
 ├── model/
-│   └── DA_DM_model/            # Final fine-tuned model
+│   └── DA_DM_model/                                # Final saved DistilBERT regression model
+│       ├── config.json
+│       ├── tokenizer.json
+│       ├── vocab.txt
+│       └── training_args.bin
+│       ...
+│
 ├── src/
-│   └── fine_tune_distilbert.py # Training and evaluation pipeline
+│   └── DA_DM_FINAL_SUBMIT.ipynb                    # Complete pipeline: loading, training, evaluation
+│
 ├── examples/
-│   └── inference_examples.ipynb # Model testing with sample inputs
+│   └── inference_examples.ipynb                    # Notebook for testing predictions
+│
 ├── README.md
 └── requirements.txt
 ```
@@ -35,49 +48,51 @@ This project presents an end-to-end Natural Language Processing (NLP) pipeline t
 
 | Stage              | Rows     | Description                              |
 |--------------------|----------|------------------------------------------|
-| Raw Combined       | 71,189   | Aggregated from 4 open datasets          |
-| After Cleaning     | 49,636   | Removed nulls and duplicates             |
-| Final Balanced     | 40,086   | Six content themes, 6,681 entries each   |
+| Raw Combined       | 71,189   | Merged from 4 diverse Hugging Face sources |
+| After Cleaning     | 49,636   | Duplicates removed, nulls filtered       |
+| Final Balanced     | 40,086   | 6 themes × 6,681 entries each            |
 
-Themes: Politics, Sports, People, Entertainment, Technology, Other  
-Sources: Tweets, Reddit-style posts, LinkedIn content, marketing captions
+**Themes**: Politics, Sports, People, Entertainment, Technology, Other  
+**Sources**: Hate speech tweets, Reddit-style comments, marketing content, instructional prompts
 
 ---
 
 ## Feature Engineering
 
-We created the following features:
+Engineered features:
 
-- `sentiment_numeric`: From TextBlob, range [-0.96, +0.97]
-- `text_length_norm`: Min-max normalized word count
+- `sentiment_numeric`: Derived from TextBlob sentiment analysis (range: -0.96 to +0.97)
+- `text_length_norm`: Word count scaled between 0 and 1 using min-max normalization
 - `estimated_engagement_score`:  
-  `Score = 0.7 × text_length_norm + 0.3 × sentiment_numeric`
+  \[
+  \text{Score} = 0.7 \times \text{text\_length\_norm} + 0.3 \times \text{sentiment\_numeric}
+  \]
 
-Why this formula?  
-It balances verbosity and emotional tone. This heuristic aligns with literature like Asur & Huberman (2010), showing that longer, emotionally charged posts attract more interaction.
+**Why this formula?**  
+It reflects the observation that longer and more emotionally expressive posts gain higher engagement, supported by literature such as Asur & Huberman (2010) and Bhargava et al. (2023).
 
 ---
 
 ## Model Architecture
 
-- Model: `distilbert-base-uncased` (6-layer transformer)
-- Task: Regression (num_labels=1)
-- Input: Social media text (max 128 tokens)
-- Output: Continuous engagement score (float)
-- Framework: Hugging Face Transformers
+- **Model**: `distilbert-base-uncased` (6-layer transformer)
+- **Objective**: Regression (`num_labels = 1`)
+- **Input**: Text up to 128 tokens
+- **Output**: Continuous engagement score
+- **Library**: Hugging Face Transformers
 
 ---
 
 ## Training Configuration
 
-| Parameter               | Value            |
-|-------------------------|------------------|
-| Learning Rate           | 1e-5             |
-| Batch Size              | 16               |
-| Epochs                  | 5 (early stopping at 2) |
-| Optimizer               | AdamW            |
-| Metric                  | R² score         |
-| Environment             | Google Colab (T4 GPU, <8 GB RAM)
+| Parameter               | Value                    |
+|-------------------------|--------------------------|
+| Learning Rate           | 1e-5                     |
+| Batch Size              | 16                       |
+| Epochs                  | 5 (early stopping after 2) |
+| Optimizer               | AdamW                    |
+| Evaluation Metric       | $R^2$ Score              |
+| Training Platform       | Google Colab (T4 GPU, <8 GB RAM) |
 
 ---
 
@@ -85,51 +100,51 @@ It balances verbosity and emotional tone. This heuristic aligns with literature 
 
 | Model           | R² Score | RMSE   |
 |------------------|----------|--------|
-| Linear Baseline  | 0.418    | 0.1184 |
-| DistilBERT       | 0.7752   | 0.0618 |
+| Linear Regression | 0.418    | 0.1184 |
+| DistilBERT        | 0.7752   | 0.0618 |
 
-- Standard Deviation (RMSE) across folds: ±0.007  
-- Validation loss: 0.0038  
-- Result: ~77.5% of engagement variance explained by text alone
+- Cross-validation RMSE Std Dev: ±0.007  
+- Validation Loss: 0.0038  
+- Interpretation: ~77.5% of engagement variance explained using text alone
 
 ---
 
 ## Inference Examples
 
-Example Predictions:
+**Examples with Predicted Engagement Scores:**
 
-1. "Just launched our new app! Try it out and share your feedback!" → 0.2078  
-2. "Feeling lost today. Everything seems to be falling apart." → -0.1758  
-3. "Huge congratulations to the team for reaching 10,000 followers!" → 0.2661  
-4. "That awkward moment when WiFi dies during a Zoom call." → -0.0474  
+1. “Just launched our new app! Try it out and share your feedback!” → **0.2078**  
+2. “Feeling lost today. Everything seems to be falling apart.” → **-0.1758**  
+3. “Huge congratulations to the team for reaching 10,000 followers!” → **0.2661**  
+4. “That awkward moment when WiFi dies during a Zoom call.” → **-0.0474**
 
-Insight: Longer, optimistic or informative posts scored higher, while short or negative posts scored lower.
+**Insight**: Informative and optimistic posts tend to score higher. Posts with negative tone or short length tend to score lower.
 
 ---
 
 ## Limitations
 
-- Does not account for non-text features like author, timestamp, or media
-- Limited to English textual posts (no multilingual support)
-- Sensitive to training hyperparameters (e.g., learning rate, epochs)
-- Engagement definition is a proxy, not platform-specific
+- Does not account for non-textual cues (author profile, time of post, likes, images)
+- Limited to English; no multilingual or code-mixed text support
+- Sensitive to hyperparameter tuning (learning rate, token length)
+- Engagement score is a heuristic metric, not tied to platform-specific interactions
 
 ---
 
 ## Real-World Applications
 
-- Marketing dashboards: Rank draft posts by impact
-- Influencer analysis: Score captions before posting
-- Content moderation: Flag high-impact or harmful content
-- Real-time trend tracking: Use in streaming platforms via API
+- **Marketing Dashboards**: Estimate engagement for draft campaigns
+- **Influencer Analytics**: Score content before publication
+- **Content Moderation**: Flag unusually high-impact or harmful posts
+- **Streaming Analysis**: Predict trends in real-time using APIs
 
 ---
 
 ## Future Enhancements
 
-- Multimodal learning (add images, videos, hashtags)
-- Hyperparameter optimization (GridSearch/Optuna)
-- Deployment as REST or streaming API
-- Recast as classification (low/med/high engagement)
+- Integrate images/videos (multimodal learning)
+- Convert to classification (Low / Medium / High engagement)
+- Perform hyperparameter tuning (GridSearch, Optuna)
+- Deploy via REST API or stream processor
 
-
+---
