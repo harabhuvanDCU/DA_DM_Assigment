@@ -17,29 +17,31 @@ This project presents an end-to-end Natural Language Processing (NLP) pipeline t
 ## Repository Structure
 
 ```
-DA_DM_Assignment/
+Predicting-Social-Media-Engagement-Using-DistilBERT/
 ├── data/
 │   ├── raw/
-│   │   └── combined_social_media_dataset.csv       # Merged original data
+│   │   └── combined_social_media_dataset.csv        # Original combined dataset
 │   └── cleaned/
-│       └── final_balanced_dataset2.csv             # Cleaned and balanced training data
+│       └── final_balanced_dataset2.csv              # Cleaned and balanced dataset
 │
 ├── model/
-│   └── DA_DM_model/                                # Final saved DistilBERT regression model
+│   └── DA_DM_model/                                 # Final saved DistilBERT model and tokenizer files
 │       ├── config.json
+│       ├── special_tokens_map.json
 │       ├── tokenizer.json
-│       ├── vocab.txt
-│       └── training_args.bin
-│       ...
+│       ├── tokenizer_config.json
+│       ├── training_args.bin
+│       └── vocab.txt
 │
 ├── src/
-│   └── DA_DM_FINAL_SUBMIT.ipynb                    # Complete pipeline: loading, training, evaluation
+│   ├── DA_DM_FINAL_SUBMIT.ipynb                     # Complete ML pipeline notebook
+│   └── COMPILE_INSTRUCTIONS.md                      # Setup and compile/run instructions
 │
-├── examples/
-│   └── inference_examples.ipynb                    # Notebook for testing predictions
+├── docs/
+│   └── README.md                                     # Project overview and documentation
 │
-├── README.md
-└── requirements.txt
+├── requirements.txt                                  # Python dependencies
+
 ```
 
 ---
